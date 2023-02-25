@@ -1,0 +1,4 @@
+{
+	"extends": ["chance", "chance/react", "chance/typescript"],
+	"plugins": ["html"]
+}

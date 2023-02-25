@@ -1,0 +1,65 @@
+:root {
+	--color-background: hsl(0 0% 14% / 1);
+	--color-text: hsl(0 0% 100% / 0.87);
+	--color-link: hsl(237 100% 70% / 1);
+	--color-link-hover: hsl(237 86% 64% / 1);
+	--color-button: hsl(0 0% 10% / 1);
+	--color-button-border: transparent;
+	--color-button-border-hover: hsl(237 100% 70% / 1);
+	--color-button-text: var(--color-text);
+	color: var(--color-text);
+	background-color: var(--color-background);
+	font-weight: 400;
+}
+
+#root {
+	height: 100%;
+	isolation: isolate;
+}
+
+a {
+	font-weight: 500;
+	color: var(--color-link);
+	text-decoration: inherit;
+}
+
+a:where(:hover) {
+	color: var(--color-link-hover);
+}
+
+h1 {
+	font-size: 3.2em;
+	line-height: 1.1;
+	font-weight: bold;
+}
+
+button {
+	border-radius: 8px;
+	border: 2px solid var(--color-button-border);
+	padding: 0.6em 1.2em;
+	font-size: 1em;
+	font-weight: 500;
+	font-family: inherit;
+	background-color: var(--color-button);
+	color: var(--color-button-text);
+	cursor: pointer;
+	transition: border-color 0.25s;
+}
+
+button:where(:hover) {
+	border-color: var(--color-button-border-hover);
+}
+
+button:where(:focus),
+button:where(:focus-visible) {
+	outline: 4px auto -webkit-focus-ring-color;
+}
+
+@media (prefers-color-scheme: light) {
+	:root {
+		--color-background: hsl(0 0% 100% / 1);
+		--color-text: hsl(208 37% 20% / 1);
+		--color-link-hover: hsl(237 100% 73% / 1);
+		--color-button: hsl(0 0% 98% / 1);
+	}
+}
