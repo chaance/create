@@ -1,6 +1,6 @@
 # `@chance/create`
 
-Quickly spin up a new project with starter templates designed … me
+Quickly spin up a new project with starter templates designed for … me
 
 ```sh
 npx @chance/create <template>

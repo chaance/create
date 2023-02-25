@@ -1,7 +1,7 @@
 {
   "name": "@chance/create",
   "version": "0.0.0",
-  "description": "Quickly spin up a new project with starter templates designed … me",
+  "description": "Quickly spin up a new project with starter templates designed for … me",
   "main": "index.js",
   "type": "module",
 	"bin": {
