@@ -1,12 +1,10 @@
 {
 	"name": "@chance/create",
-	"version": "0.0.1",
+	"version": "0.0.2",
 	"description": "Quickly spin up a new project with starter templates designed for … me",
 	"main": "index.js",
 	"type": "module",
-	"bin": {
-		".": "./scripts/main.js"
-	},
+	"bin": "./scripts/main.js",
 	"scripts": {
 		"test": "echo \"Error: no test specified\" && exit 1"
 	},
