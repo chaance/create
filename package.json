@@ -1,55 +1,58 @@
 {
-  "name": "@chance/create",
-  "version": "0.0.0",
-  "description": "Quickly spin up a new project with starter templates designed for … me",
-  "main": "index.js",
-  "type": "module",
+	"name": "@chance/create",
+	"version": "0.0.0",
+	"description": "Quickly spin up a new project with starter templates designed for … me",
+	"main": "index.js",
+	"type": "module",
 	"bin": {
 		"react": "./scripts/react.js"
 	},
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
-  },
-  "author": "Chance Strickland <hi@chance.dev>",
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/chaance/create.git"
-  },
-  "license": "MIT",
-  "files": [
+	"scripts": {
+		"test": "echo \"Error: no test specified\" && exit 1"
+	},
+	"author": "Chance Strickland <hi@chance.dev>",
+	"repository": {
+		"type": "git",
+		"url": "git+https://github.com/chaance/create.git"
+	},
+	"license": "MIT",
+	"files": [
 		"lib",
-    "scripts",
-    "templates",
-    "index.js",
-    "README.md",
-    "LICENSE"
-  ],
-  "devDependencies": {
-    "@types/fs-extra": "^11.0.1",
-    "@types/gunzip-maybe": "^1.4.0",
-    "@types/node": "^18.14.1",
-    "@types/tar-fs": "^2.0.1",
-    "@typescript-eslint/eslint-plugin": "^5.53.0",
-    "@typescript-eslint/parser": "^5.53.0",
-    "@vitest/coverage-c8": "^0.29.1",
-    "eslint": "^8.34.0",
-    "eslint-config-chance": "^2.0.2",
-    "eslint-import-resolver-node": "^0.3.7",
-    "eslint-import-resolver-typescript": "^3.5.3",
-    "eslint-plugin-import": "^2.27.5",
-    "prettier": "^2.8.4",
-    "typescript": "^4.9.5",
-    "vite": "^4.1.1",
-    "vitest": "^0.29.1"
-  },
-  "dependencies": {
-    "@clack/prompts": "^0.6.0",
-    "arg": "^5.0.2",
-    "execa": "^7.0.0",
-    "fs-extra": "^11.1.0",
-    "gunzip-maybe": "^1.4.2",
-    "node-fetch": "^3.3.0",
-    "proxy-agent": "^5.0.0",
-    "tar-fs": "^2.1.1"
-  }
+		"scripts",
+		"templates",
+		"index.js",
+		"README.md",
+		"LICENSE"
+	],
+	"devDependencies": {
+		"@types/fs-extra": "^11.0.1",
+		"@types/gunzip-maybe": "^1.4.0",
+		"@types/node": "^18.14.1",
+		"@types/tar-fs": "^2.0.1",
+		"@typescript-eslint/eslint-plugin": "^5.53.0",
+		"@typescript-eslint/parser": "^5.53.0",
+		"@vitest/coverage-c8": "^0.29.1",
+		"eslint": "^8.34.0",
+		"eslint-config-chance": "^2.0.2",
+		"eslint-import-resolver-node": "^0.3.7",
+		"eslint-import-resolver-typescript": "^3.5.3",
+		"eslint-plugin-import": "^2.27.5",
+		"prettier": "^2.8.4",
+		"typescript": "^4.9.5",
+		"vite": "^4.1.1",
+		"vitest": "^0.29.1"
+	},
+	"dependencies": {
+		"@clack/prompts": "^0.6.0",
+		"arg": "^5.0.2",
+		"execa": "^7.0.0",
+		"fs-extra": "^11.1.0",
+		"gunzip-maybe": "^1.4.2",
+		"node-fetch": "^3.3.0",
+		"proxy-agent": "^5.0.0",
+		"tar-fs": "^2.1.1"
+	},
+	"publishConfig": {
+		"access": "public"
+	}
 }
