@@ -1,60 +1,32 @@
 import path from "node:path";
-import os from "node:os";
 import fse from "fs-extra";
-import arg from "arg";
 import { execa } from "execa";
 import * as prompts from "@clack/prompts";
-import { getModulePaths } from "../lib/utils.js";
+import {
+	ensureDirRecursive,
+	exitPrompt,
+	getModulePaths,
+	isPathname,
+	normalizePath,
+	wait,
+} from "../lib/utils.js";
 
-main();
-
-async function main() {
-	process.on("SIGINT", () => process.exit(0));
-	process.on("SIGTERM", () => process.exit(0));
-
-	let argv = process.argv.slice(2).filter((arg) => arg !== "--");
-
-	let flags = arg(
-		{
-			"--help": Boolean,
-			"--install": Boolean,
-			"--git": Boolean,
-			"--dry": Boolean,
-			"-h": "--help",
-			"-i": "--install",
-			"-g": "--git",
-		},
-		{ argv, permissive: true }
-	);
-	let {
-		_: args,
-		"--help": help,
-		"--install": installDeps,
-		"--git": gitInit,
-		"--dry": dryRun,
-	} = flags;
+/** @param {Context} ctx */
+export async function createReact(ctx) {
+	let { args, dryRun, initGitRepo, installDeps } = ctx;
 
 	let spinner = prompts.spinner();
 	let cwd = process.cwd();
 
-	// 0. Show help text and bail
-	if (help) {
-		console.log(getHelp());
-		return;
-	}
-
-	// 1. Say hello!
-	prompts.intro("@chance/create react" + (dryRun ? " (dry run)" : ""));
-
-	// 2. Set up project directory
-	let project = await getProjectDetails(args, { cwd });
+	// 1. Set up project directory
+	let project = await getProjectDetails(args[0], { cwd });
 	if (dryRun) {
 		await wait(1);
 	} else {
 		await ensureDirRecursive(project.pathname);
 	}
 
-	// 3. Create the damned thing
+	// 2. Create the damned thing
 	cwd = project.pathname;
 	let relativePath = path.relative(process.cwd(), project.pathname);
 	spinner.start(`Creating a new React app in ${relativePath}`);
@@ -72,9 +44,9 @@ async function main() {
 	}
 	spinner.stop(`New React app '${project.name}' created 🚀`);
 
-	// 4. Initialize git repo
-	gitInit = gitInit ?? (await promptToInitializeGitRepo());
-	if (gitInit) {
+	// 3. Initialize git repo
+	initGitRepo = initGitRepo ?? (await promptToInitializeGitRepo());
+	if (initGitRepo) {
 		if (dryRun) {
 			await wait(1);
 		} else {
@@ -85,23 +57,20 @@ async function main() {
 		prompts.log.info("Skipped Git initialization");
 	}
 
-	// 5. Install dependencies
+	// 4. Install dependencies
 	installDeps = installDeps ?? (await promptToInstallDependencies());
 	if (installDeps) {
-		let pm = detectPackageManager();
-		spinner.start(`Installing dependencies with ${pm}`);
+		const pm = ctx.pkgManager ?? detectPackageManager();
+		spinner.start(`Installing dependencies with ${pm} -- CWD: ${cwd}`);
 		if (dryRun) {
 			await wait(1000);
 		} else {
-			await exec(pm, pm === "yarn" ? [] : ["install"], { cwd });
+			await installDependencies(pm, { cwd });
 		}
-		spinner.stop("Installed dependencies");
+		spinner.stop(`Dependencies installed with ${pm}`);
 	} else {
 		prompts.log.info("Skipped dependency installation");
 	}
-
-	// 6. Huzzah!
-	prompts.outro("You're all set!");
 }
 
 /**
@@ -159,7 +128,7 @@ async function promptToInitializeGitRepo() {
 		message: "Initialize a Git repository?",
 		initialValue: true,
 	});
-	if (prompts.isCancel(answer)) cancel();
+	if (prompts.isCancel(answer)) exitPrompt();
 	return answer;
 }
 
@@ -168,25 +137,24 @@ async function promptToInstallDependencies() {
 		message: "Install dependencies?",
 		initialValue: false,
 	});
-	if (prompts.isCancel(answer)) return cancel();
+	if (prompts.isCancel(answer)) exitPrompt();
 	return answer;
 }
 
 /**
- * @param {string[]} args
+ * @param {string|undefined} projectNameInput
  * @param {{ cwd: string }} opts
  */
-async function getProjectDetails(args, opts) {
-	let projectName = args[0];
+async function getProjectDetails(projectNameInput, opts) {
+	let projectName = projectNameInput;
 	if (!projectName) {
 		let defaultProjectName = "my-react-app";
 		let answer = await prompts.text({
 			message: "Where would you like to create your project?",
 			placeholder: "." + path.sep + defaultProjectName,
 		});
-		if (prompts.isCancel(answer)) {
-			return cancel();
-		}
+		if (prompts.isCancel(answer)) exitPrompt();
+
 		answer = answer?.trim();
 		projectName = answer || defaultProjectName;
 	}
@@ -207,18 +175,6 @@ async function getProjectDetails(args, opts) {
 		name: projectName,
 		pathname,
 	};
-}
-
-/**
- * @returns {never}
- */
-function cancel() {
-	prompts.outro("At least you tried. Catch you later!");
-	return process.exit(0);
-}
-
-function getHelp() {
-	return "No help yet, sorry!";
 }
 
 function detectExecCommand() {
@@ -249,13 +205,6 @@ function detectPackageManager() {
 }
 
 /**
- * @param {number} ms
- */
-async function wait(ms) {
-	return new Promise((resolve) => setTimeout(resolve, ms));
-}
-
-/**
  * @param {string} command
  * @param {readonly string[]} args
  * @param {{ cwd: string }} options
@@ -266,6 +215,19 @@ async function exec(command, args, options) {
 	return new Promise((resolve, reject) => {
 		installExec.on("error", (error) => reject(error));
 		installExec.on("close", (code, signal) => resolve({ code, signal }));
+	});
+}
+
+/**
+ * @param {"npm" | "yarn" | "pnpm"} packageManager
+ * @param {{ cwd: string }} opts
+ * @returns
+ */
+async function installDependencies(packageManager, { cwd }) {
+	let installExec = execa(packageManager, ["install"], { cwd });
+	return new Promise((resolve, reject) => {
+		installExec.on("error", (error) => reject(error));
+		installExec.on("close", () => resolve());
 	});
 }
 
@@ -296,33 +258,8 @@ function isValidProjectName(projectName) {
 }
 
 /**
- * @param {string} dir
- */
-async function ensureDirRecursive(dir) {
-	let parent = path.dirname(dir);
-	if (parent !== dir) {
-		await ensureDirRecursive(parent);
-	}
-	await fse.ensureDir(dir);
-}
-
-/**
- * @param {string} str
- */
-function isPathname(str) {
-	return str.includes("/") || str.includes("\\");
-}
-
-/**
- * @param {string} pathname
- */
-function normalizePath(pathname) {
-	if (os.platform() === "win32") {
-		return path.win32.normalize(pathname);
-	}
-	return path.normalize(pathname);
-}
-
-/**
- * @typedef {string | object | number | boolean | bigint} Serializable
+ * @typedef {import("../types").Template} Template
+ * @typedef {import("../types").PackageManager} PackageManager
+ * @typedef {import("../types").Context} Context
+ * @typedef {import("../types").Serializable} Serializable
  */
