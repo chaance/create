@@ -60,8 +60,8 @@ export async function createReact(ctx) {
 	// 4. Install dependencies
 	installDeps = installDeps ?? (await promptToInstallDependencies());
 	if (installDeps) {
-		const pm = ctx.pkgManager ?? detectPackageManager();
-		spinner.start(`Installing dependencies with ${pm} -- CWD: ${cwd}`);
+		const pm = ctx.pkgManager ?? "pnpm";
+		spinner.start(`Installing dependencies with ${pm}`);
 		if (dryRun) {
 			await wait(1000);
 		} else {
@@ -175,33 +175,6 @@ async function getProjectDetails(projectNameInput, opts) {
 		name: projectName,
 		pathname,
 	};
-}
-
-function detectExecCommand() {
-	const defaultCommand = "npx";
-	if (!process.env.npm_execpath) return defaultCommand;
-	let basename = path.basename(process.env.npm_execpath);
-	return basename.startsWith("pnpx")
-		? "pnpx"
-		: basename.startsWith("yarn")
-		? "yarn"
-		: basename.startsWith("npm")
-		? "npx"
-		: defaultCommand;
-}
-
-function detectPackageManager() {
-	let execCommand = detectExecCommand();
-	switch (execCommand) {
-		case "pnpx":
-			return "pnpm";
-		case "yarn":
-			return "yarn";
-		case "npx":
-			return "npm";
-		default:
-			throw new Error(`Unknown exec command: ${execCommand}`);
-	}
 }
 
 /**
