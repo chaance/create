@@ -33,8 +33,6 @@ async function main() {
 		"--pkg-manager": pkgManager,
 	} = flags;
 
-	console.log({ pkgManager });
-
 	// 0. Show help text and bail
 	if (help) {
 		console.log(getHelp());
