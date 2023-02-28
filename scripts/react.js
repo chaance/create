@@ -3,7 +3,6 @@ import fse from "fs-extra";
 import { execa } from "execa";
 import * as prompts from "@clack/prompts";
 import {
-	ensureDirRecursive,
 	exitPrompt,
 	getModulePaths,
 	isPathname,
@@ -23,7 +22,7 @@ export async function createReact(ctx) {
 	if (dryRun) {
 		await wait(1);
 	} else {
-		await ensureDirRecursive(project.pathname);
+		await fse.ensureDir(project.pathname);
 	}
 
 	// 2. Create the damned thing
@@ -85,7 +84,7 @@ async function createApp(projectName, projectPathname, { onError }) {
 	let sharedTemplateDir = path.join(templatesDir, "_shared");
 	let reactTemplateDir = path.join(templatesDir, "react");
 
-	await ensureDirRecursive(projectPathname);
+	await fse.ensureDir(projectPathname);
 
 	// TODO: Detect if project directory is empty, otherwise we
 	// can't create a new project here.
